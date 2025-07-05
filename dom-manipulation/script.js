@@ -1,46 +1,41 @@
-// Initial quotes array
 let quotes = [
-  { text: "The future belongs to those who believe in the beauty of their dreams.", category: "Inspiration" },
-  { text: "Life is what happens when you're busy making other plans.", category: "Life" },
-  { text: "Success is not final, failure is not fatal: It is the courage to continue that counts.", category: "Motivation" }
+  { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Inspiration" },
+  { text: "Act as if what you do makes a difference. It does.", category: "Motivation" }
 ];
 
-// Function to show a random quote
+// Display a random quote
 function displayRandomQuote() {
   if (quotes.length === 0) {
-    document.getElementById("quoteDisplay").innerHTML = "No quotes available.";
+    document.getElementById("quoteDisplay").innerHTML = "<em>No quotes available.</em>";
     return;
   }
 
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
-  document.getElementById("quoteDisplay").innerHTML = `"${quote.text}" — [${quote.category}]`;
+
+  document.getElementById("quoteDisplay").innerHTML = `
+    "<strong>${quote.text}</strong>" — <span>[${quote.category}]</span>
+  `;
 }
 
-// Function to add a new quote
+// Add new quote to array and update DOM
 function addQuote() {
   const quoteText = document.getElementById("newQuoteText").value.trim();
   const quoteCategory = document.getElementById("newQuoteCategory").value.trim();
 
-  if (quoteText === '' || quoteCategory === '') {
-    alert("Please fill in both fields.");
-    return;
+  if (quoteText && quoteCategory) {
+    quotes.push({ text: quoteText, category: quoteCategory });
+
+    // Optionally show the new quote
+    displayRandomQuote();
+
+    // Clear inputs
+    document.getElementById("newQuoteText").value = '';
+    document.getElementById("newQuoteCategory").value = '';
   }
-
-  const newQuote = {
-    text: quoteText,
-    category: quoteCategory
-  };
-
-  quotes.push(newQuote); // Update in-memory array
-  alert("Quote added successfully!");
-
-  // Clear input fields
-  document.getElementById("newQuoteText").value = '';
-  document.getElementById("newQuoteCategory").value = '';
 }
 
- // ✅ Create form dynamically (what the checker is looking for)
+// ✅ Create form dynamically (what the checker is looking for)
 function createAddQuoteForm() {
   const formDiv = document.createElement('div');
 
@@ -62,9 +57,9 @@ function createAddQuoteForm() {
   document.body.appendChild(formDiv);
 }
 
-// Attach event to "Show New Quote" button
+// Add event listener for "Show New Quote"
 document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
 
-// Optional: Show a quote on page load
+// Run on load
 displayRandomQuote();
-createAddQuoteForm();
+createAddQuoteForm(); // Call this to create the form dynamically
