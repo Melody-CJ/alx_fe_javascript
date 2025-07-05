@@ -6,7 +6,7 @@ let quotes = [
 ];
 
 // Function to show a random quote
-function showRandomQuote() {
+function displayRandomQuote() {
   if (quotes.length === 0) {
     document.getElementById("quoteDisplay").innerText = "No quotes available.";
     return;
