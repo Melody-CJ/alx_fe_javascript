@@ -61,5 +61,5 @@ function createAddQuoteForm() {
 document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
 
 // Run on load
-displayRandomQuote();
+showRandomQuote();
 createAddQuoteForm(); // Call this to create the form dynamically
