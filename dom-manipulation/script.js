@@ -209,7 +209,7 @@ document.getElementById("manualSync").addEventListener("click", () => {
     saveQuotes();
     populateCategories();
     displayRandomQuote();
-    notify("Manual sync complete.");
+    notify("Quotes synced with server!");
   });
 });
 
@@ -228,7 +228,7 @@ function syncQuotes() {
       saveQuotes();
       populateCategories();
       displayRandomQuote();
-      notify("Quotes synced with server (from JSONPlaceholder).");
+      notify("Quotes synced with server!");
     }
   }, 15000); // 15 seconds for testing; increase for real use
 }
