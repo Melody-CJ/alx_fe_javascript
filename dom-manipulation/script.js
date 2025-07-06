@@ -200,8 +200,21 @@ async function fetchQuotesFromServer() {
   }
 }
 
+document.getElementById("manualSync").addEventListener("click", () => {
+  // Run the sync process immediately
+  fetchQuotesFromServer().then(serverData => {
+    const localData = JSON.parse(localStorage.getItem("quotes")) || [];
+    const mergedData = mergeQuotes(localData, serverData);
+    quotes = mergedData;
+    saveQuotes();
+    populateCategories();
+    displayRandomQuote();
+    notify("Manual sync complete.");
+  });
+});
+
 // Fetch from "server" and merge with local data every 15 seconds
-function startSyncInterval() {
+function syncQuotes() {
   setInterval(async () => {
     const serverData = await fetchQuotesFromServer();
     const localData = JSON.parse(localStorage.getItem("quotes")) || [];
@@ -290,5 +303,5 @@ createAddQuoteForm();
 populateCategories();
 showRandomQuote();
 createAddQuoteForm(); // Call this to create the form dynamically
-startSyncInterval(); // 🟢 Start syncing
+syncQuotes(); // 🟢 Start syncing
 });
