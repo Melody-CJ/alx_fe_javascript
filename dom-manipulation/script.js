@@ -187,7 +187,7 @@ let serverQuotes = [
 ];
 
 // Simulate server GET
-function fetchFromServer() {
+function fetchQuotesFromServer() {
   return new Promise(resolve => {
     setTimeout(() => resolve([...serverQuotes]), 500); // fake latency
   });
@@ -205,7 +205,7 @@ function postToServer(newQuote) {
 // Fetch from "server" and merge with local data every 15 seconds
 function startSyncInterval() {
   setInterval(async () => {
-    const serverData = await fetchFromServer();
+    const serverData = await fetchQuotesFromServer();
     const localData = JSON.parse(localStorage.getItem("quotes")) || [];
 
     // Conflict resolution strategy: server data wins
