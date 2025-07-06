@@ -200,7 +200,6 @@ async function fetchQuotesFromServer() {
   }
 }
 
-
 // Fetch from "server" and merge with local data every 15 seconds
 function startSyncInterval() {
   setInterval(async () => {
@@ -220,6 +219,27 @@ function startSyncInterval() {
     }
   }, 15000); // 15 seconds for testing; increase for real use
 }
+
+async function postToServer(quote) {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title: quote.text,
+        body: quote.category
+      })
+    });
+
+    const result = await response.json();
+    console.log("Posted to server:", result);
+  } catch (error) {
+    console.error("Error posting to server:", error);
+  }
+}
+
 
 // Merge helper: replace duplicates by ID, otherwise append
 function mergeQuotes(local, server) {
