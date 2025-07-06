@@ -87,23 +87,31 @@ function displayRandomQuote() {
 
 
 // Add new quote to array and update DOM
-function addQuote() {
+async function addQuote() {
   const quoteText = document.getElementById("newQuoteText").value.trim();
   const quoteCategory = document.getElementById("newQuoteCategory").value.trim();
 
   if (quoteText && quoteCategory) {
-    quotes.push({ text: quoteText, category: quoteCategory });
+    const newQuote = { text: quoteText, category: quoteCategory };
+
+    // Save locally
+    newQuote.id = Date.now(); // assign temporary ID
+    quotes.push(newQuote);
     saveQuotes();
-    populateCategories(); // Update filter dropdown
-    filterQuotes(); // Show one matching quote
+    populateCategories();
+    displayRandomQuote();
+
+    // Send to "server"
+    await postToServer(newQuote);
+    notify("Quote added and synced to server.");
+
+    // Clear inputs
     document.getElementById("newQuoteText").value = '';
     document.getElementById("newQuoteCategory").value = '';
-    alert("Quote added!");
   } else {
-    alert("Please enter both a quote and a category.");
+    alert("Please fill in both fields.");
   }
 }
-
 
 // ✅ Create form dynamically (what the checker is looking for)
 function createAddQuoteForm() {
@@ -172,6 +180,82 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
+// Simulated server-side quote store (in real app, this would be API calls)
+let serverQuotes = [
+  { id: 1, text: "Server quote 1", category: "Wisdom" },
+  { id: 2, text: "Server quote 2", category: "Humor" }
+];
+
+// Simulate server GET
+function fetchFromServer() {
+  return new Promise(resolve => {
+    setTimeout(() => resolve([...serverQuotes]), 500); // fake latency
+  });
+}
+
+// Simulate server POST
+function postToServer(newQuote) {
+  return new Promise(resolve => {
+    newQuote.id = Date.now(); // simulate server ID assignment
+    serverQuotes.push(newQuote);
+    setTimeout(() => resolve(newQuote), 300);
+  });
+}
+
+// Fetch from "server" and merge with local data every 15 seconds
+function startSyncInterval() {
+  setInterval(async () => {
+    const serverData = await fetchFromServer();
+    const localData = JSON.parse(localStorage.getItem("quotes")) || [];
+
+    // Conflict resolution strategy: server data wins
+    const mergedData = mergeQuotes(localData, serverData);
+
+    // Only notify if something changed
+    if (JSON.stringify(mergedData) !== JSON.stringify(localData)) {
+      quotes = mergedData;
+      saveQuotes();
+      populateCategories();
+      displayRandomQuote();
+      notify("Quotes synced with server. Conflicts resolved (server version kept).");
+    }
+  }, 15000); // 15 seconds for testing; increase for real use
+}
+
+// Merge helper: replace duplicates by ID, otherwise append
+function mergeQuotes(local, server) {
+  const merged = [];
+  const localMap = new Map(local.map(q => [q.id, q]));
+
+  server.forEach(serverQuote => {
+    merged.push(serverQuote); // server wins in conflict
+    localMap.delete(serverQuote.id); // remove if also exists locally
+  });
+
+  // add remaining local quotes that don't exist on server
+  for (const remaining of localMap.values()) {
+    merged.push(remaining);
+  }
+
+  return merged;
+}
+
+function notify(message) {
+  const note = document.createElement("div");
+  note.textContent = message;
+  note.style.cssText = `
+    background: #ffeeba;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ffc107;
+    color: #856404;
+  `;
+  document.body.appendChild(note);
+
+  setTimeout(() => note.remove(), 5000); // auto-remove after 5s
+}
+
+
 // Add event listener for "Show New Quote"
 document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
 
@@ -187,4 +271,5 @@ createAddQuoteForm();
 populateCategories();
 showRandomQuote();
 createAddQuoteForm(); // Call this to create the form dynamically
+startSyncInterval(); // 🟢 Start syncing
 });
