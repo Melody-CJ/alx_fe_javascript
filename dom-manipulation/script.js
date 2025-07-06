@@ -181,26 +181,25 @@ function importFromJsonFile(event) {
 }
 
 // Simulated server-side quote store (in real app, this would be API calls)
-let serverQuotes = [
-  { id: 1, text: "Server quote 1", category: "Wisdom" },
-  { id: 2, text: "Server quote 2", category: "Humor" }
-];
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const data = await response.json();
 
-// Simulate server GET
-function fetchQuotesFromServer() {
-  return new Promise(resolve => {
-    setTimeout(() => resolve([...serverQuotes]), 500); // fake latency
-  });
+    // Convert to quote format
+    const serverQuotes = data.slice(0, 10).map(post => ({
+      id: post.id,
+      text: post.title,
+      category: post.body.slice(0, 20) || "General"
+    }));
+
+    return serverQuotes;
+  } catch (err) {
+    console.error("Failed to fetch from server:", err);
+    return [];
+  }
 }
 
-// Simulate server POST
-function postToServer(newQuote) {
-  return new Promise(resolve => {
-    newQuote.id = Date.now(); // simulate server ID assignment
-    serverQuotes.push(newQuote);
-    setTimeout(() => resolve(newQuote), 300);
-  });
-}
 
 // Fetch from "server" and merge with local data every 15 seconds
 function startSyncInterval() {
@@ -217,7 +216,7 @@ function startSyncInterval() {
       saveQuotes();
       populateCategories();
       displayRandomQuote();
-      notify("Quotes synced with server. Conflicts resolved (server version kept).");
+      notify("Quotes synced with server (from JSONPlaceholder).");
     }
   }, 15000); // 15 seconds for testing; increase for real use
 }
